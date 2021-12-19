@@ -1,4 +1,5 @@
 const Sequelize = require('sequelize');
+const { Op } = Sequelize;
 
 const sequelize = new Sequelize({
   dialect: 'sqlite',
@@ -81,6 +82,56 @@ Profile.hasMany(Contract, {as : 'Client', foreignKey:'ClientId'})
 Contract.belongsTo(Profile, {as: 'Client'})
 Contract.hasMany(Job)
 Job.belongsTo(Contract)
+
+
+Contract.addScope('active', {
+  where: {
+    status: 'in_progress'
+  },
+})
+
+Contract.addScope('nonTerminated', {
+  where: {
+    status: {
+      [Op.ne]: 'terminated',
+    }
+  },
+})
+
+Contract.addScope('relatedContract', profileId => ({
+  where: {
+    [Op.or]: [
+      { ClientId: profileId },
+      { ContractorId: profileId },
+    ],
+  },
+}))
+
+Job.addScope('unpaid', {
+  where: {
+    // vyt: @todo: how to query boolean/tinyint correctly ?
+    paid: {
+      [Op.or]: [ false, null ]
+    },
+  },
+})
+
+Job.addScope('relatedActiveContract', profileId => ({
+  include: [
+    {
+      model: Contract.scope({ method: ['relatedContract', profileId] }, 'active'),
+      required: true,
+    },
+  ]
+}))
+
+Job.addScope('paidBetween', ( start, end ) => ({
+  where: {
+    paymentDate: {
+      [Op.between]: [start, end],
+    },
+  }
+}))
 
 module.exports = {
   sequelize,
