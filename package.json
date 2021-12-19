@@ -10,14 +10,21 @@
   },
   "scripts": {
     "start": "nodemon ./src/server.js",
-    "seed": "node ./scripts/seedDb.js"
+    "seed": "node ./scripts/seedDb.js",
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "devDependencies": {
     "concurrently": "4.1.0",
-    "nodemon": "1.19.1"
+    "jest": "^27.4.5",
+    "nodemon": "1.19.1",
+    "supertest": "^6.1.6"
   },
   "engines": {
-    "node": ">=10.16.3"
+    "node": ">=14.5.0"
   },
-  "engineStrict": true
+  "engineStrict": true,
+  "jest": {
+    "transform": {}
+  }
 }
