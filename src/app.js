@@ -70,7 +70,7 @@ app.get('/contracts', getProfile, async (req, res) =>{
 
     try {
         await sequelize.transaction(async transaction => {
-            const updatedJob = await Job
+            const [ affectedJobCount ] = await Job
                 .scope('unpaid')
                 .update({
                     paid: true,
@@ -80,7 +80,7 @@ app.get('/contracts', getProfile, async (req, res) =>{
                     transaction,
                 })
 
-            if (!updatedJob) {
+            if (!affectedJobCount) {
                 throw new Error(`Job payment: cannot mark job as paid, job id: ${jobId}`)
             }
 
